@@ -1,5 +1,6 @@
 package tatakae.Muzan.Controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import tatakae.Muzan.Model.Price;
 import tatakae.Muzan.Model.Product;
 import tatakae.Muzan.repository.PriceRepository;
@@ -27,10 +29,11 @@ public class PriceController {
 	private ProductRepository productRepo;
 	
 	@PostMapping("/{productId}")
-	public Price addPrices(@PathVariable int productId, @RequestBody Price price) {
+	public Price addPrices(@PathVariable int productId,@Valid @RequestBody Price price) {
 		
 		Product product = productRepo.findById(productId).orElseThrow();
 		price.setProduct(product);
+		price.setDate(LocalDateTime.now());
 		return priceRepo.save(price);
 		
 	}
