@@ -9,6 +9,9 @@ import tatakae.Muzan.Model.Product;
 
 public interface PriceRepository extends JpaRepository<Price, Integer>{
 
-	Page<Price> findByProduct(Product product, Pageable pageable);
+	Page<Price> findByProductOrderByDateDesc(Product product, Pageable pageable);
+	Price findTopByProductOrderByDateDesc(Product product);
+	Price findTopByProductOrderByPriceAsc(Product product);
+
 	
 }

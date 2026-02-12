@@ -50,7 +50,22 @@ public class PriceController {
 		
 		Product product = productRepo.findById(productId).orElseThrow();
 		Pageable pageable = PageRequest.of(price, size);
-		return priceRepo.findByProduct(product, pageable);
+		return priceRepo.findByProductOrderByDateDesc(product, pageable);
 	}
 	
+	@GetMapping("/{productId}/latest")
+	public Price latestPrice(@PathVariable int productId) {
+		
+		Product product = productRepo.findById(productId).orElseThrow();
+		return priceRepo.findTopByProductOrderByDateDesc(product);
+		
+	}
+	
+	@GetMapping("/{productId}/cheapest")
+	public Price cheapPrice(@PathVariable int productId) {
+		
+		Product product = productRepo.findById(productId).orElseThrow();
+		return priceRepo.findTopByProductOrderByPriceAsc(product);
+		
+	}
 }
