@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import tatakae.Muzan.DTO.PriceRequest;
 import tatakae.Muzan.Model.Price;
 import tatakae.Muzan.Model.Product;
+import tatakae.Muzan.Service.PriceService;
 import tatakae.Muzan.repository.PriceRepository;
 import tatakae.Muzan.repository.ProductRepository;
 
@@ -29,43 +31,37 @@ public class PriceController {
 	private PriceRepository priceRepo;
 	@Autowired
 	private ProductRepository productRepo;
+	@Autowired
+	private PriceService priceService;
 	
 	@PostMapping("/{productId}")
-	public Price addPrices(@PathVariable int productId,@Valid @RequestBody Price price) {
+	public Price addPrices(@PathVariable int productId,@Valid @RequestBody PriceRequest request) {
 		
-		Product product = productRepo.findById(productId).orElseThrow();
-		price.setProduct(product);
-		price.setDate(LocalDateTime.now());
-		return priceRepo.save(price);
+		return priceService.addPrice(productId, request.getWebsite(), request.getPrice());
 		
 	}
 	
 	@GetMapping("/{productId}")
 	public Page<Price> getPrice(@PathVariable int productId,
-			@RequestParam(defaultValue="0") int price,
+			@RequestParam(defaultValue="0") int page,
 			@RequestParam(defaultValue="5") int size
 			){
 		
+		return priceService.getPrice(productId, page, size);
 		
-		
-		Product product = productRepo.findById(productId).orElseThrow();
-		Pageable pageable = PageRequest.of(price, size);
-		return priceRepo.findByProductOrderByDateDesc(product, pageable);
 	}
 	
 	@GetMapping("/{productId}/latest")
-	public Price latestPrice(@PathVariable int productId) {
+	public Price latestPrices(@PathVariable int productId) {
 		
-		Product product = productRepo.findById(productId).orElseThrow();
-		return priceRepo.findTopByProductOrderByDateDesc(product);
+		return priceService.getLatestPrice(productId);
 		
 	}
 	
 	@GetMapping("/{productId}/cheapest")
 	public Price cheapPrice(@PathVariable int productId) {
 		
-		Product product = productRepo.findById(productId).orElseThrow();
-		return priceRepo.findTopByProductOrderByPriceAsc(product);
+		return priceService.getCheapestPrice(productId);
 		
 	}
 }
