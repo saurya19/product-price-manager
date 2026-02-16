@@ -18,6 +18,7 @@ import jakarta.validation.Valid;
 import tatakae.Muzan.DTO.PriceRequest;
 import tatakae.Muzan.Model.Price;
 import tatakae.Muzan.Model.Product;
+import tatakae.Muzan.Scraper.MockAmazonScraper;
 import tatakae.Muzan.Service.PriceService;
 import tatakae.Muzan.repository.PriceRepository;
 import tatakae.Muzan.repository.ProductRepository;
@@ -28,11 +29,11 @@ import tatakae.Muzan.repository.ProductRepository;
 public class PriceController {
 
 	@Autowired
-	private PriceRepository priceRepo;
-	@Autowired
 	private ProductRepository productRepo;
 	@Autowired
 	private PriceService priceService;
+	
+	private MockAmazonScraper scraper;
 	
 	@PostMapping("/{productId}")
 	public Price addPrices(@PathVariable int productId,@Valid @RequestBody PriceRequest request) {
@@ -64,4 +65,13 @@ public class PriceController {
 		return priceService.getCheapestPrice(productId);
 		
 	}
+	
+	@GetMapping("/{productId}/scrape")
+	public Price scrapeAndSave(@PathVariable int productId) {
+
+	    int fetchedPrice = scraper.fetchPrice("dummy-url");
+
+	    return priceService.addPrice(productId, "Amazon", fetchedPrice);
+	}
+
 }

@@ -3,6 +3,9 @@ package tatakae.Muzan.Service;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import tatakae.Muzan.DTO.PriceRequest;
@@ -29,9 +32,24 @@ public class PriceService {
 		return priceRepo.save(price);
 	}
 	
-	public Price cheapPrice(int productId) {
+	public Price getCheapestPrice(int productId) {
 		Product product = productRepo.findById(productId).orElseThrow();
 		return priceRepo.findTopByProductOrderByPriceAsc(product);
 		
 	}
+	
+	public Price getLatestPrice(int productId) {
+		Product product = productRepo.findById(productId).orElseThrow();
+		return priceRepo.findTopByProductOrderByDateDesc(product);
+		
+	}
+	
+	public Page<Price> getPrice(int productId, int page, int size){
+		
+		Product product = productRepo.findById(productId).orElseThrow();
+		Pageable pageable = PageRequest.of(page, size);
+		return priceRepo.findByProductOrderByDateDesc(product, pageable);
+		
+	}
+	
 }
