@@ -5,15 +5,16 @@ import java.util.Random;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MockAmazonScraper implements PriceScraper{
+public class MockFlipkartScraper implements PriceScraper{
 
 	@Override
 	public int fetchPrice(String productURL) {
-		return 70000 + new Random().nextInt(5000);
+		return 48000 + new Random().nextInt(10000);
 	}
 	
 	@Override
 	public String getWebsiteName() {
-		return "amazon";
+		return "flipkart";
 	}
+	
 }

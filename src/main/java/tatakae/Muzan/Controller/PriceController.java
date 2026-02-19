@@ -29,11 +29,7 @@ import tatakae.Muzan.repository.ProductRepository;
 public class PriceController {
 
 	@Autowired
-	private ProductRepository productRepo;
-	@Autowired
 	private PriceService priceService;
-	
-	private MockAmazonScraper scraper;
 	
 	@PostMapping("/{productId}")
 	public Price addPrices(@PathVariable int productId,@Valid @RequestBody PriceRequest request) {
@@ -67,11 +63,10 @@ public class PriceController {
 	}
 	
 	@GetMapping("/{productId}/scrape")
-	public Price scrapeAndSave(@PathVariable int productId) {
+	public void scrapeAndSave(@PathVariable int productId) {
 
-	    int fetchedPrice = scraper.fetchPrice("dummy-url");
-
-	    return priceService.addPrice(productId, "Amazon", fetchedPrice);
+	    priceService.addScraperPrice(productId);
+	    
 	}
 
 }

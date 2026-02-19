@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import jakarta.validation.Valid;
 import tatakae.Muzan.Model.Product;
+import tatakae.Muzan.Service.ProductService;
 import tatakae.Muzan.repository.ProductRepository;
 
 @RestController
@@ -23,11 +24,11 @@ import tatakae.Muzan.repository.ProductRepository;
 public class ProductController {
 	
 	@Autowired
-	private ProductRepository productRepository;
+	private ProductService productService;
 	
 	@PostMapping
 	public Product addProduct(@Valid @RequestBody Product product) {
-		return productRepository.save(product);
+		return productService.addingProduct(product);
 	}
 	
 	@GetMapping
@@ -36,14 +37,13 @@ public class ProductController {
 			@RequestParam(defaultValue="5") int size
 			){
 		
-		Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
-		return productRepository.findAll(pageable);
+		return productService.gettingAllProduct(page, size);
 	}
 	
 	@GetMapping("category/{category}")
 	public List<Product> GetByCategory(@PathVariable String category){
 		
-		return productRepository.findByCategory(category);
+		return productService.GettingByCategory(category);
 		
 	}
 

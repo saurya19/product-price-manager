@@ -1,16 +1,19 @@
 package tatakae.Muzan.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import tatakae.Muzan.DTO.PriceRequest;
 import tatakae.Muzan.Model.Price;
 import tatakae.Muzan.Model.Product;
+import tatakae.Muzan.Scraper.PriceScraper;
 import tatakae.Muzan.repository.PriceRepository;
 import tatakae.Muzan.repository.ProductRepository;
 
@@ -21,6 +24,8 @@ public class PriceService {
 	private ProductRepository productRepo; 
 	@Autowired
 	private PriceRepository priceRepo;
+	@Autowired
+	private List<PriceScraper> scrapers;
 
 	public Price addPrice(int productId, String website, int priceVal) {
 		Product product = productRepo.findById(productId).orElseThrow();
@@ -51,5 +56,36 @@ public class PriceService {
 		return priceRepo.findByProductOrderByDateDesc(product, pageable);
 		
 	}
+	
+	public void addScraperPrice(int productId) {
+		
+		for(PriceScraper scraper: scrapers) {
+			int fetchedPrice = scraper.fetchPrice("dummy-url");
+			addPrice(productId, scraper.getWebsiteName(), fetchedPrice);
+		}
+		
+		
+	}
+	@Scheduled(fixedRateString = "${price.scrape.interval}")
+	public void autoScrapePrice() {
+
+	    List<Product> products = productRepo.findAll();
+
+	    for (Product product : products) {
+
+	        try {
+	            addScraperPrice(product.getId());
+	            System.out.println("Price updated for product ID: " + product.getId());
+
+	        } catch (Exception e) {
+
+	            System.out.println("Failed to update product ID: " 
+	                    + product.getId() + " Reason: " + e.getMessage());
+	        }
+	    }
+
+	    System.out.println("Auto scrape cycle completed at " + LocalDateTime.now());
+	}
+
 	
 }
