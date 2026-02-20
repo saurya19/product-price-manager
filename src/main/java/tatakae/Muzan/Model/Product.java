@@ -23,6 +23,7 @@ public class Product {
     private String brand;
     @NotBlank
     private String category;
+    private String url;
 
     @OneToMany(mappedBy ="product")
     @JsonIgnore
@@ -69,4 +70,12 @@ public class Product {
     public void setPrices(List<Price> prices) {
         this.prices = prices;
     }
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
 }

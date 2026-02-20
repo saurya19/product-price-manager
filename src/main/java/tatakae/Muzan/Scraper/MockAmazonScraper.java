@@ -4,7 +4,7 @@ import java.util.Random;
 
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class MockAmazonScraper implements PriceScraper{
 
 	@Override

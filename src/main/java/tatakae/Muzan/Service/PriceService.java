@@ -58,14 +58,17 @@ public class PriceService {
 	}
 	
 	public void addScraperPrice(int productId) {
-		
-		for(PriceScraper scraper: scrapers) {
-			int fetchedPrice = scraper.fetchPrice("dummy-url");
-			addPrice(productId, scraper.getWebsiteName(), fetchedPrice);
-		}
-		
-		
+
+	    Product product = productRepo.findById(productId).orElseThrow();
+
+	    for (PriceScraper scraper : scrapers) {
+
+	        int fetchedPrice = scraper.fetchPrice(product.getUrl());
+
+	        addPrice(productId, scraper.getWebsiteName(), fetchedPrice);
+	    }
 	}
+
 	@Scheduled(fixedRateString = "${price.scrape.interval}")
 	public void autoScrapePrice() {
 
