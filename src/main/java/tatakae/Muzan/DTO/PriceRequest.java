@@ -4,8 +4,7 @@ public class PriceRequest {
 
 	private String website;
 	private int price;
-	
-	
+		
 	public String getWebsite() {
 		return website;
 	}

@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import tatakae.Muzan.DTO.ProductResponse;
+import tatakae.Muzan.Model.Price;
 import tatakae.Muzan.Model.Product;
 import tatakae.Muzan.repository.ProductRepository;
 
@@ -35,6 +37,14 @@ public class ProductService {
 		
 		return productRepo.findByCategory(category);
 		
+	}
+	
+	public ProductResponse convertToProductResponse(Product product) {
+		return new ProductResponse(product.getId(),
+					product.getName(),
+					product.getBrand(),
+					product.getCategory()
+					);
 	}
 	
 }

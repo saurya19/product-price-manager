@@ -13,5 +13,4 @@ public interface PriceRepository extends JpaRepository<Price, Integer>{
 	Price findTopByProductOrderByDateDesc(Product product);
 	Price findTopByProductOrderByPriceAsc(Product product);
 
-	
 }

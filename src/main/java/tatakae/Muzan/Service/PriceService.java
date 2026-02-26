@@ -3,6 +3,8 @@ package tatakae.Muzan.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import tatakae.Muzan.DTO.PriceRequest;
+import tatakae.Muzan.DTO.PriceResponse;
 import tatakae.Muzan.Model.Price;
 import tatakae.Muzan.Model.Product;
 import tatakae.Muzan.Scraper.PriceScraper;
@@ -26,9 +29,12 @@ public class PriceService {
 	private PriceRepository priceRepo;
 	@Autowired
 	private List<PriceScraper> scrapers;
+	
+	private static final Logger log = LoggerFactory.getLogger(PriceService.class);
 
 	public Price addPrice(int productId, String website, int priceVal) {
 		Product product = productRepo.findById(productId).orElseThrow();
+		log.info("Saving Price for productId {} from website {} whose price is {}", productId, website, priceVal);
 		Price price = new Price();
 		price.setWebsite(website);
 		price.setPrice(priceVal);
@@ -38,6 +44,7 @@ public class PriceService {
 	}
 	
 	public Price getCheapestPrice(int productId) {
+		
 		Product product = productRepo.findById(productId).orElseThrow();
 		return priceRepo.findTopByProductOrderByPriceAsc(product);
 		
@@ -58,15 +65,23 @@ public class PriceService {
 	}
 	
 	public void addScraperPrice(int productId) {
-
+		
 	    Product product = productRepo.findById(productId).orElseThrow();
+	    
+	    log.info("Started Scraping for Product Id {}", productId);;
 
 	    for (PriceScraper scraper : scrapers) {
-
-	        int fetchedPrice = scraper.fetchPrice(product.getUrl());
-
-	        addPrice(productId, scraper.getWebsiteName(), fetchedPrice);
+	    	try {
+	    		log.info("Scraping started for website {}", scraper.getWebsiteName());
+	    		int fetchedPrice = scraper.fetchPrice(product.getUrl());
+		        addPrice(productId, scraper.getWebsiteName(), fetchedPrice);
+		        log.info("Successfully Scraped price for website {}", scraper.getWebsiteName());
+	    	}
+	    	catch(Exception e) {
+	    		log.error("Scraping failed for website: {} productID: {}", scraper.getWebsiteName(), productId, e);
+	    	}	        
 	    }
+	    log.info("Completed scraping for product ID: {}", productId);
 	}
 
 	@Scheduled(fixedRateString = "${price.scrape.interval}")
@@ -74,15 +89,17 @@ public class PriceService {
 
 	    List<Product> products = productRepo.findAll();
 
+	    log.info("Scheduler started at {}", LocalDateTime.now());
+	    
 	    for (Product product : products) {
 
 	        try {
 	            addScraperPrice(product.getId());
-	            System.out.println("Price updated for product ID: " + product.getId());
+	            log.info("Price updated for product ID: " + product.getId());
 
 	        } catch (Exception e) {
 
-	            System.out.println("Failed to update product ID: " 
+	            log.error("Failed to update product ID: " 
 	                    + product.getId() + " Reason: " + e.getMessage());
 	        }
 	    }
@@ -90,5 +107,12 @@ public class PriceService {
 	    System.out.println("Auto scrape cycle completed at " + LocalDateTime.now());
 	}
 
+	public PriceResponse convertToResponse(Price price) {
+		return new PriceResponse(price.getProduct().getName(),
+					price.getWebsite(),
+					price.getPrice(),
+					price.getDate()
+					);
+	}
 	
 }
