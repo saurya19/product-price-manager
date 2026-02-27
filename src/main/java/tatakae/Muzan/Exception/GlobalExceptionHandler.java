@@ -16,8 +16,8 @@ public class GlobalExceptionHandler {
 
 	private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 	
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<String> handleNotFound(NoSuchElementException e) {
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ResponseEntity<String> handleNotFound(ProductNotFoundException e) {
     	
     	log.error("Exception occured {}", e.getMessage(), e);
         return ResponseEntity
@@ -32,5 +32,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .badRequest()
                 .body("Invalid input data");
+    }
+    
+    @ExceptionHandler(ScraperException.class)
+    public ResponseEntity<String> handleScraperException(ScraperException e) {
+    	
+    	log.error("Scraper Failed {}", e.getMessage(), e);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Scraping Failed, Please try again later");
     }
 }

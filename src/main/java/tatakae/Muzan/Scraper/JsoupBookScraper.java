@@ -1,6 +1,7 @@
 package tatakae.Muzan.Scraper;
 
 import org.jsoup.Jsoup;
+import tatakae.Muzan.Exception.ScraperException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
@@ -26,7 +27,7 @@ public class JsoupBookScraper implements PriceScraper {
             
             if (priceElement == null) {
                 log.error("Price element not found for URL: {}", productUrl);
-                throw new RuntimeException("Price element not found");
+                throw new ScraperException("Failed to scrape from " + getWebsiteName());
             }
             
             String priceText = priceElement.text().replace("£", "");
@@ -39,7 +40,7 @@ public class JsoupBookScraper implements PriceScraper {
         	
         	log.error("Scraper failed for URL: {}", productUrl, e);
 
-            throw new RuntimeException("Failed to scrape Book price", e);
+        	throw new ScraperException("Failed to scrape from " + getWebsiteName(), e);
         }
     }
 

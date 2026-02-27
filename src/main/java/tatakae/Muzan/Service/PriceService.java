@@ -1,6 +1,7 @@
 package tatakae.Muzan.Service;
 
 import java.time.LocalDateTime;
+import tatakae.Muzan.Exception.ProductNotFoundException;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -33,7 +34,8 @@ public class PriceService {
 	private static final Logger log = LoggerFactory.getLogger(PriceService.class);
 
 	public Price addPrice(int productId, String website, int priceVal) {
-		Product product = productRepo.findById(productId).orElseThrow();
+		Product product = productRepo.findById(productId)
+			    .orElseThrow(() -> new ProductNotFoundException(productId));
 		log.info("Saving Price for productId {} from website {} whose price is {}", productId, website, priceVal);
 		Price price = new Price();
 		price.setWebsite(website);
@@ -45,20 +47,23 @@ public class PriceService {
 	
 	public Price getCheapestPrice(int productId) {
 		
-		Product product = productRepo.findById(productId).orElseThrow();
+		Product product = productRepo.findById(productId)
+			    .orElseThrow(() -> new ProductNotFoundException(productId));
 		return priceRepo.findTopByProductOrderByPriceAsc(product);
 		
 	}
 	
 	public Price getLatestPrice(int productId) {
-		Product product = productRepo.findById(productId).orElseThrow();
+		Product product = productRepo.findById(productId)
+			    .orElseThrow(() -> new ProductNotFoundException(productId));
 		return priceRepo.findTopByProductOrderByDateDesc(product);
 		
 	}
 	
 	public Page<Price> getPrice(int productId, int page, int size){
 		
-		Product product = productRepo.findById(productId).orElseThrow();
+		Product product = productRepo.findById(productId)
+			    .orElseThrow(() -> new ProductNotFoundException(productId));
 		Pageable pageable = PageRequest.of(page, size);
 		return priceRepo.findByProductOrderByDateDesc(product, pageable);
 		
@@ -66,7 +71,8 @@ public class PriceService {
 	
 	public void addScraperPrice(int productId) {
 		
-	    Product product = productRepo.findById(productId).orElseThrow();
+		Product product = productRepo.findById(productId)
+			    .orElseThrow(() -> new ProductNotFoundException(productId));
 	    
 	    log.info("Started Scraping for Product Id {}", productId);;
 
@@ -99,12 +105,10 @@ public class PriceService {
 
 	        } catch (Exception e) {
 
-	            log.error("Failed to update product ID: " 
-	                    + product.getId() + " Reason: " + e.getMessage());
+	        	log.error("Failed to update product ID: {}", product.getId(), e);
 	        }
 	    }
-
-	    System.out.println("Auto scrape cycle completed at " + LocalDateTime.now());
+	    log.info("Auto scrape cycle completed at {}", LocalDateTime.now());;
 	}
 
 	public PriceResponse convertToResponse(Price price) {
